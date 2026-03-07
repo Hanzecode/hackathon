@@ -1,6 +1,6 @@
 # Returnship API 🚀
 
-AI-powered FastAPI backend helping women return to work after career breaks.
+AI-powered FastAPI backend helping women return to work after career breaks using Google Gemini.
 
 ## Features
 | # | Endpoint | What it does |
@@ -19,8 +19,8 @@ AI-powered FastAPI backend helping women return to work after career breaks.
 # 1. Install dependencies
 pip install -r requirements.txt
 
-# 2. Set your Anthropic API key
-export ANTHROPIC_API_KEY=sk-ant-...
+# 2. Set your Gemini API key
+export GEMINI_API_KEY=AIza...
 
 # 3. Run the server
 uvicorn main:app --reload
@@ -103,7 +103,7 @@ returnship_api/
 ├── main.py          # FastAPI routes
 ├── database.py      # SQLite models & session
 ├── schemas.py       # Pydantic request/response models
-├── ai_service.py    # All Anthropic API calls
+├── ai_service.py    # All Google Gemini API calls
 ├── requirements.txt
 └── returnship.db    # Auto-created on first run
 ```

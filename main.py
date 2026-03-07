@@ -154,15 +154,16 @@ async def submit_answer(payload: InterviewAnswerRequest, db: Session = Depends(g
         session.job_role, session.question, payload.answer
     )
 
+    feedback_obj = InterviewFeedback(**feedback)
     session.user_answer = payload.answer
     session.feedback = json.dumps(feedback)
-    session.score = feedback["score"]
+    session.score = feedback_obj.score
     db.commit()
     db.refresh(session)
 
     return InterviewAnswerResponse(
         session_id=session.id,
-        feedback=InterviewFeedback(**feedback),
+        feedback=feedback_obj,
         created_at=session.created_at,
     )
 
