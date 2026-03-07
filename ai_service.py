@@ -187,35 +187,6 @@ ORIGINAL CV:
     return _parse_json(raw)
 
 
-# ── 4. Flexible Job Matcher ───────────────────────────────────────────────────
-
-async def match_jobs(field: str, location: str, hours: int, seniority: str, remote: bool) -> Dict:
-    system = (
-        "You are a job matching assistant. Suggest realistic flexible job opportunities. "
-        "Respond ONLY with valid JSON, no extra text."
-    )
-    user = f"""
-Generate 5 realistic flexible job listings for someone returning to work in {field}.
-Preferences: location={location}, max hours/week={hours}, seniority={seniority}, remote={remote}
-
-Return JSON with this exact structure:
-{{
-  "jobs": [
-    {{
-      "title": "...",
-      "company": "...",
-      "location": "...",
-      "hours": "e.g. 25 hrs/week",
-      "flexibility_score": <int 1-10>,
-      "match_score": <int 1-10>,
-      "apply_url": "https://...",
-      "why_good_match": "1 sentence"
-    }}
-  ]
-}}
-"""
-    raw = await _call_gemini(system, user)
-    return _parse_json(raw)
 
 
 # ── 5. Roadmap Generator ──────────────────────────────────────────────────────

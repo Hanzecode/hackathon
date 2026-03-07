@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000";
+const API_BASE = "http://0.0.0.0:8080";
 
 const style = `
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap');
@@ -132,18 +132,12 @@ const style = `
   .tip-item { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 6px; font-size: 13px; color: var(--ink); line-height: 1.5; }
   .tip-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--sage); flex-shrink: 0; margin-top: 6px; }
 
-  /* ── Jobs ── */
+
+  /* ── Generic item card (used by Roadmap returnship programs) ── */
   .job-card { border: 1.5px solid var(--cream2); border-radius: 12px; padding: 20px; margin-bottom: 12px; transition: border-color 0.2s, box-shadow 0.2s; }
   .job-card:hover { border-color: var(--sage); box-shadow: var(--shadow); }
-  .job-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
   .job-title { font-weight: 600; font-size: 15px; color: var(--ink); }
   .job-company { font-size: 13px; color: var(--muted); margin-top: 2px; }
-  .score-bar-wrap { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
-  .score-bar-label { font-size: 11px; color: var(--muted); width: 90px; flex-shrink: 0; }
-  .score-bar-track { flex: 1; height: 6px; background: var(--cream2); border-radius: 3px; overflow: hidden; }
-  .score-bar-fill { height: 100%; border-radius: 3px; background: var(--sage); transition: width 0.6s ease; }
-  .score-bar-fill.rust { background: var(--rust); }
-  .job-match-reason { font-size: 12px; color: var(--forest2); font-style: italic; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--cream2); }
 
   /* ── Roadmap ── */
   .week-card { border-left: 4px solid var(--sage); padding: 20px 24px; margin-bottom: 16px; background: var(--white); border-radius: 0 12px 12px 0; box-shadow: var(--shadow); }
@@ -491,107 +485,6 @@ function CVRewriter() {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// FEATURE 4 — Job Matcher
-// ─────────────────────────────────────────────────────────────────────────────
-function JobMatcher() {
-  const [form, setForm] = useState({ field: "", location: "remote", hours_per_week: 30, seniority: "mid", remote: true });
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState(null);
-
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
-
-  async function submit() {
-    setLoading(true); setError(null); setResult(null);
-    try {
-      const data = await api("/jobs/match", { user_id: USER_ID, ...form });
-      setResult(data);
-    } catch (e) { setError(e.message); }
-    setLoading(false);
-  }
-
-  return (
-    <div>
-      <div className="page-header">
-        <div className="badge">Feature 4</div>
-        <h2>Flexible Job Matcher</h2>
-        <p>Find jobs that match your field, hours, and flexibility needs.</p>
-      </div>
-
-      <div className="card">
-        <div className="row">
-          <div className="col-half">
-            <div className="form-group">
-              <label>Your Field</label>
-              <input placeholder="e.g. Software Engineering" value={form.field} onChange={e => set("field", e.target.value)} />
-            </div>
-          </div>
-          <div className="col-half">
-            <div className="form-group">
-              <label>Location</label>
-              <input placeholder="e.g. London or remote" value={form.location} onChange={e => set("location", e.target.value)} />
-            </div>
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-half">
-            <div className="form-group">
-              <label>Max Hours / Week</label>
-              <input type="number" min={10} max={40} value={form.hours_per_week} onChange={e => set("hours_per_week", parseInt(e.target.value))} />
-            </div>
-          </div>
-          <div className="col-half">
-            <div className="form-group">
-              <label>Seniority</label>
-              <select value={form.seniority} onChange={e => set("seniority", e.target.value)}>
-                <option value="junior">Junior</option>
-                <option value="mid">Mid-level</option>
-                <option value="senior">Senior</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div className="form-group" style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <input type="checkbox" id="remote" style={{ width: "auto" }} checked={form.remote} onChange={e => set("remote", e.target.checked)} />
-          <label htmlFor="remote" style={{ margin: 0, textTransform: "none", letterSpacing: 0, fontSize: 14 }}>Remote / hybrid only</label>
-        </div>
-        <button className="btn btn-primary" onClick={submit} disabled={loading || !form.field}>
-          {loading ? "Searching…" : "→ Find Matching Jobs"}
-        </button>
-        {error && <div className="error-box">⚠ {error}</div>}
-      </div>
-
-      {loading && <div className="loading"><div className="spinner" />Finding flexible jobs for you…</div>}
-
-      {result && (
-        <div>
-          <p className="text-muted mt-16" style={{ marginBottom: 16 }}>Found {result.total_found} matching roles</p>
-          {result.jobs?.map((job, i) => (
-            <div key={i} className="job-card">
-              <div className="job-header">
-                <div>
-                  <div className="job-title">{job.title}</div>
-                  <div className="job-company">{job.company} · {job.location} · {job.hours}</div>
-                </div>
-                <a href={job.apply_url} target="_blank" rel="noreferrer" className="btn btn-outline" style={{ padding: "8px 16px", fontSize: 12 }}>Apply →</a>
-              </div>
-              <div className="score-bar-wrap">
-                <span className="score-bar-label">Flexibility {job.flexibility_score}/10</span>
-                <div className="score-bar-track"><div className="score-bar-fill" style={{ width: `${job.flexibility_score * 10}%` }} /></div>
-              </div>
-              <div className="score-bar-wrap">
-                <span className="score-bar-label">Match {job.match_score}/10</span>
-                <div className="score-bar-track"><div className="score-bar-fill rust" style={{ width: `${job.match_score * 10}%` }} /></div>
-              </div>
-              <div className="job-match-reason">✦ {job.why_good_match}</div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // FEATURE 5 — Roadmap Generator
@@ -706,7 +599,6 @@ const PAGES = [
   { id: "skills", icon: "🔍", label: "Skills Analyzer", component: SkillsAnalyzer },
   { id: "interview", icon: "🎤", label: "Interview Coach", component: InterviewCoach },
   { id: "cv", icon: "✍️", label: "CV Rewriter", component: CVRewriter },
-  { id: "jobs", icon: "💼", label: "Job Matcher", component: JobMatcher },
   { id: "roadmap", icon: "🗺️", label: "Roadmap Generator", component: RoadmapGenerator },
 ];
 

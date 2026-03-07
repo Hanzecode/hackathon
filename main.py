@@ -215,45 +215,6 @@ def cv_history(user_id: int, db: Session = Depends(get_db)):
     return [{"id": r.id, "created_at": r.created_at} for r in records]
 
 
-# ── Feature 4: Flexible Job Matcher ──────────────────────────────────────────
-
-@app.post("/jobs/match", response_model=JobMatchResponse, tags=["4. Job Matcher"])
-async def match_jobs(payload: JobMatchRequest, db: Session = Depends(get_db)):
-    """
-    Set your field, hours, location, and flexibility preferences.
-    Returns ranked flexible job listings with match scores.
-    """
-    result = await ai_service.match_jobs(
-        payload.field,
-        payload.location,
-        payload.hours_per_week,
-        payload.seniority,
-        payload.remote,
-    )
-
-    record = JobMatch(
-        user_id=payload.user_id,
-        filters=json.dumps(payload.model_dump()),
-        results=json.dumps(result),
-    )
-    db.add(record)
-    db.commit()
-    db.refresh(record)
-
-    return JobMatchResponse(
-        id=record.id,
-        total_found=len(result["jobs"]),
-        jobs=[JobListing(**j) for j in result["jobs"]],
-        created_at=record.created_at,
-    )
-
-
-@app.get("/jobs/history/{user_id}", tags=["4. Job Matcher"])
-def job_history(user_id: int, db: Session = Depends(get_db)):
-    """Get all past job searches for a user."""
-    records = db.query(JobMatch).filter(JobMatch.user_id == user_id).all()
-    return [{"id": r.id, "filters": json.loads(r.filters), "created_at": r.created_at} for r in records]
-
 
 # ── Feature 5: Returnship Roadmap Generator ───────────────────────────────────
 
