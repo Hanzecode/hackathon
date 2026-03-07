@@ -49,7 +49,17 @@ async def _call_gemini(system: str, user: str, max_tokens: int = 1500) -> str:
 
         data = resp.json()
         try:
-            return data["candidates"][0]["content"]["parts"][0]["text"]
+            candidate = data["candidates"][0]
+            # Detect truncation — if finishReason is MAX_TOKENS the JSON is incomplete
+            finish_reason = candidate.get("finishReason", "")
+            if finish_reason == "MAX_TOKENS":
+                raise HTTPException(
+                    status_code=500,
+                    detail="Gemini response was truncated (MAX_TOKENS). Increase max_tokens or shorten the prompt."
+                )
+            return candidate["content"]["parts"][0]["text"]
+        except HTTPException:
+            raise
         except (KeyError, IndexError):
             raise HTTPException(
                 status_code=500,
@@ -58,17 +68,35 @@ async def _call_gemini(system: str, user: str, max_tokens: int = 1500) -> str:
 
 
 def _parse_json(text: str) -> Any:
-    """Strip markdown fences and parse JSON. Handles multi-line fence patterns."""
+    """
+    Robustly extract and parse JSON from Gemini responses.
+    Strategy: find the first { or [ and the last } or ] and parse whatever is between.
+    This handles all fence variations and any extra text before/after.
+    """
     clean = text.strip()
-    # Remove opening fence (handles ```json or ``` on its own line)
-    if clean.startswith("```"):
-        clean = clean.split("\n", 1)[-1]
-    # Remove closing fence
-    if clean.endswith("```"):
-        clean = clean.rsplit("```", 1)[0]
-    clean = clean.strip()
+
+    # Find the first JSON object or array
+    start = -1
+    end = -1
+    for i, ch in enumerate(clean):
+        if ch in ('{', '['):
+            start = i
+            break
+    for i in range(len(clean) - 1, -1, -1):
+        if clean[i] in ('}', ']'):
+            end = i
+            break
+
+    if start == -1 or end == -1 or end < start:
+        raise HTTPException(
+            status_code=500,
+            detail=f"No JSON found in AI response. Raw response: {text[:300]}"
+        )
+
+    json_str = clean[start:end + 1]
+
     try:
-        return json.loads(clean)
+        return json.loads(json_str)
     except json.JSONDecodeError as e:
         raise HTTPException(
             status_code=500,
@@ -98,7 +126,7 @@ TARGET ROLE: {target_role}
 CV:
 {cv_text}
 """
-    raw = await _call_gemini(system, user)
+    raw = await _call_gemini(system, user, max_tokens=3000)
     return _parse_json(raw)
 
 
@@ -107,7 +135,7 @@ CV:
 async def generate_interview_question(job_role: str) -> str:
     system = "You are a supportive interview coach. Return ONLY the interview question as plain text."
     user = f"Generate one realistic, mid-level interview question for a {job_role} role."
-    return (await _call_gemini(system, user, max_tokens=200)).strip()
+    return (await _call_gemini(system, user, max_tokens=1000)).strip()
 
 
 async def evaluate_interview_answer(job_role: str, question: str, answer: str) -> Dict:
