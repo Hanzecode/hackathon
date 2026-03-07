@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const API_BASE = "http://0.0.0.0:8080";
+const API_BASE = "http://localhost:8000";
 
 const style = `
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap');
@@ -177,6 +177,23 @@ const style = `
   .mt-16 { margin-top: 16px; }
   .error-box { background: #FEE2E2; color: #991B1B; padding: 14px 18px; border-radius: 10px; font-size: 13px; margin-top: 16px; }
 
+  /* ── File Upload ── */
+  .upload-zone {
+    border: 2px dashed var(--cream2); border-radius: 12px; padding: 32px 24px;
+    text-align: center; cursor: pointer; transition: all 0.2s; background: var(--cream);
+    position: relative;
+  }
+  .upload-zone:hover, .upload-zone.dragover { border-color: var(--sage); background: var(--sage-lt); }
+  .upload-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .upload-icon { font-size: 32px; margin-bottom: 8px; }
+  .upload-label { font-size: 14px; font-weight: 500; color: var(--forest); }
+  .upload-hint  { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .upload-file-name { display: flex; align-items: center; gap: 10px; background: var(--sage-lt); border-radius: 8px; padding: 10px 14px; margin-top: 12px; font-size: 13px; color: var(--forest); font-weight: 500; }
+  .upload-file-remove { margin-left: auto; cursor: pointer; color: var(--muted); font-size: 16px; line-height: 1; }
+  .upload-file-remove:hover { color: var(--rust); }
+  .upload-or { display: flex; align-items: center; gap: 12px; margin: 16px 0; color: var(--muted); font-size: 13px; }
+  .upload-or::before, .upload-or::after { content: ''; flex: 1; height: 1px; background: var(--cream2); }
+
   /* ── Tabs (for CV) ── */
   .tabs { display: flex; gap: 4px; background: var(--cream2); padding: 4px; border-radius: 10px; margin-bottom: 20px; width: fit-content; }
   .tab { padding: 8px 20px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; color: var(--muted); }
@@ -201,7 +218,34 @@ const USER_ID = 1;
 // ─────────────────────────────────────────────────────────────────────────────
 // FEATURE 1 — Skills Gap Analyzer
 // ─────────────────────────────────────────────────────────────────────────────
+function FileUploadZone({ file, onFile, onClear, accept = ".pdf,.doc,.docx" }) {
+  const [drag, setDrag] = useState(false);
+  return (
+    <div>
+      {!file ? (
+        <div
+          className={`upload-zone ${drag ? "dragover" : ""}`}
+          onDragOver={e => { e.preventDefault(); setDrag(true); }}
+          onDragLeave={() => setDrag(false)}
+          onDrop={e => { e.preventDefault(); setDrag(false); const f = e.dataTransfer.files[0]; if (f) onFile(f); }}
+        >
+          <input type="file" accept={accept} onChange={e => { if (e.target.files[0]) onFile(e.target.files[0]); }} />
+          <div className="upload-icon">📄</div>
+          <div className="upload-label">Drop your CV here or click to browse</div>
+          <div className="upload-hint">Supports PDF and DOCX files</div>
+        </div>
+      ) : (
+        <div className="upload-file-name">
+          📄 {file.name}
+          <span className="upload-file-remove" onClick={onClear}>✕</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SkillsAnalyzer() {
+  const [file, setFile] = useState(null);
   const [cvText, setCvText] = useState("");
   const [targetRole, setTargetRole] = useState("");
   const [loading, setLoading] = useState(false);
@@ -211,11 +255,21 @@ function SkillsAnalyzer() {
   async function submit() {
     setLoading(true); setError(null); setResult(null);
     try {
-      const data = await api("/skills/analyze", { user_id: USER_ID, cv_text: cvText, target_role: targetRole });
+      const form = new FormData();
+      form.append("user_id", USER_ID);
+      form.append("target_role", targetRole);
+      if (file) form.append("file", file);
+      else form.append("cv_text", cvText);
+
+      const res = await fetch(`${API_BASE}/skills/analyze`, { method: "POST", body: form });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Request failed");
       setResult(data);
     } catch (e) { setError(e.message); }
     setLoading(false);
   }
+
+  const canSubmit = !loading && targetRole && (file || cvText);
 
   return (
     <div>
@@ -231,10 +285,14 @@ function SkillsAnalyzer() {
           <input placeholder="e.g. Head of Digital Marketing" value={targetRole} onChange={e => setTargetRole(e.target.value)} />
         </div>
         <div className="form-group">
-          <label>Your CV (paste as text)</label>
-          <textarea rows={6} placeholder="Paste your CV content here..." value={cvText} onChange={e => setCvText(e.target.value)} />
+          <label>Upload Your CV</label>
+          <FileUploadZone file={file} onFile={setFile} onClear={() => setFile(null)} />
         </div>
-        <button className="btn btn-primary" onClick={submit} disabled={loading || !cvText || !targetRole}>
+        <div className="upload-or">or paste as text</div>
+        <div className="form-group">
+          <textarea rows={4} placeholder="Paste your CV content here..." value={cvText} onChange={e => setCvText(e.target.value)} disabled={!!file} style={{ opacity: file ? 0.4 : 1 }} />
+        </div>
+        <button className="btn btn-primary" onClick={submit} disabled={!canSubmit}>
           {loading ? "Analyzing…" : "→ Analyze Skills Gap"}
         </button>
         {error && <div className="error-box">⚠ {error}</div>}
@@ -395,6 +453,7 @@ function InterviewCoach() {
 // FEATURE 3 — CV Rewriter
 // ─────────────────────────────────────────────────────────────────────────────
 function CVRewriter() {
+  const [file, setFile] = useState(null);
   const [originalCV, setOriginalCV] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -404,11 +463,20 @@ function CVRewriter() {
   async function submit() {
     setLoading(true); setError(null); setResult(null);
     try {
-      const data = await api("/cv/rewrite", { user_id: USER_ID, original_cv: originalCV });
+      const form = new FormData();
+      form.append("user_id", USER_ID);
+      if (file) form.append("file", file);
+      else form.append("original_cv", originalCV);
+
+      const res = await fetch(`${API_BASE}/cv/rewrite`, { method: "POST", body: form });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Request failed");
       setResult(data);
     } catch (e) { setError(e.message); }
     setLoading(false);
   }
+
+  const canSubmit = !loading && (file || originalCV);
 
   return (
     <div>
@@ -420,10 +488,14 @@ function CVRewriter() {
 
       <div className="card">
         <div className="form-group">
-          <label>Your Current CV</label>
-          <textarea rows={7} placeholder="Paste your full CV here, including any career gaps…" value={originalCV} onChange={e => setOriginalCV(e.target.value)} />
+          <label>Upload Your CV</label>
+          <FileUploadZone file={file} onFile={f => { setFile(f); setOriginalCV(""); }} onClear={() => setFile(null)} />
         </div>
-        <button className="btn btn-rust" onClick={submit} disabled={loading || !originalCV}>
+        <div className="upload-or">or paste as text</div>
+        <div className="form-group">
+          <textarea rows={6} placeholder="Paste your full CV here, including any career gaps…" value={originalCV} onChange={e => { setOriginalCV(e.target.value); setFile(null); }} disabled={!!file} style={{ opacity: file ? 0.4 : 1 }} />
+        </div>
+        <button className="btn btn-rust" onClick={submit} disabled={!canSubmit}>
           {loading ? "Rewriting…" : "→ Rewrite My CV"}
         </button>
         {error && <div className="error-box">⚠ {error}</div>}

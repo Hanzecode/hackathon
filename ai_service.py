@@ -183,7 +183,7 @@ and optimize for ATS. Return JSON with this exact structure:
 ORIGINAL CV:
 {original_cv}
 """
-    raw = await _call_gemini(system, user, max_tokens=3000)
+    raw = await _call_gemini(system, user, max_tokens=5000)
     return _parse_json(raw)
 
 
