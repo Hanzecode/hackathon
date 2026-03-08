@@ -45,7 +45,6 @@ COPY --chown=appuser:appuser . .
 
 RUN mkdir -p /app/data && \
     chmod 777 /app/data && \
-    chmod 666 ./returnship.db && \
     chmod 777 .
 
 USER appuser
