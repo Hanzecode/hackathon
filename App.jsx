@@ -3,201 +3,183 @@ import { useState } from "react";
 const API_BASE = "http://localhost:8000";
 
 const style = `
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --cream:    #F5F0E8;
-    --cream2:   #EDE5D8;
-    --forest:   #2D5016;
-    --forest2:  #3D6B20;
-    --sage:     #7A9E5F;
-    --sage-lt:  #C8DDB8;
-    --rust:     #B85C2A;
-    --rust-lt:  #F0D4C4;
-    --ink:      #1A1A14;
-    --muted:    #6B6B5A;
-    --white:    #FFFFFF;
-    --shadow:   0 4px 24px rgba(26,26,20,0.10);
-    --shadow-lg:0 8px 48px rgba(26,26,20,0.16);
+    --primary-blue:   #7C95E4;
+    --secondary-blue: #A5B4F2;
+    --bg-light:       #F8FAFF;
+    --text-main:      #2D2D2D;
+    --text-muted:    #6B6B7A;
+    --white:          #FFFFFF;
+    --shadow:         0 8px 32px rgba(124,149,228,0.12);
+    --radius-lg:      24px;
+    --radius-md:      16px;
+    --radius-sm:      12px;
   }
 
   body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--cream);
-    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-light);
+    color: var(--text-main);
     min-height: 100vh;
+    line-height: 1.5;
   }
 
-  .app { display: flex; min-height: 100vh; }
+  .app { min-height: 100vh; display: flex; flex-direction: column; }
 
-  /* ── Sidebar ── */
-  .sidebar {
-    width: 260px; min-height: 100vh; background: var(--forest);
-    display: flex; flex-direction: column; padding: 32px 0;
-    position: fixed; top: 0; left: 0; z-index: 10;
+  /* ── Header / Navbar ── */
+  .header {
+    height: 80px; background: var(--primary-blue);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 40px; position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
   }
-  .sidebar-logo {
-    padding: 0 28px 32px;
-    border-bottom: 1px solid rgba(255,255,255,0.12);
-    margin-bottom: 24px;
+  .header-logo {
+    font-size: 24px; font-weight: 700; color: var(--white);
+    letter-spacing: -0.02em; cursor: pointer;
   }
-  .sidebar-logo h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 22px; color: var(--cream); line-height: 1.2;
-    font-weight: 700;
+  .navbar { display: flex; gap: 32px; align-items: center; }
+  .nav-link {
+    color: rgba(255,255,255,0.8); font-size: 15px; font-weight: 500;
+    cursor: pointer; transition: all 0.2s; position: relative;
+    padding: 8px 12px; border-radius: 8px;
   }
-  .sidebar-logo p { font-size: 11px; color: var(--sage-lt); margin-top: 4px; letter-spacing: 0.08em; text-transform: uppercase; }
-  .nav-item {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 28px; cursor: pointer; transition: all 0.2s;
-    color: rgba(255,255,255,0.65); font-size: 14px; font-weight: 400;
-    border-left: 3px solid transparent;
+  .nav-link:hover { color: var(--white); background: rgba(255,255,255,0.1); }
+  .nav-link.active {
+    color: var(--text-main); background: var(--white);
+    font-weight: 600;
   }
-  .nav-item:hover { color: var(--cream); background: rgba(255,255,255,0.06); }
-  .nav-item.active { color: var(--cream); background: rgba(255,255,255,0.10); border-left-color: var(--sage-lt); font-weight: 500; }
-  .nav-icon { font-size: 18px; width: 22px; text-align: center; }
-  .sidebar-footer { margin-top: auto; padding: 24px 28px 0; border-top: 1px solid rgba(255,255,255,0.12); }
-  .sidebar-footer p { font-size: 11px; color: rgba(255,255,255,0.4); line-height: 1.6; }
 
-  /* ── Main ── */
-  .main { margin-left: 260px; flex: 1; padding: 48px 56px; max-width: calc(100vw - 260px); }
-
+  /* ── Layout ── */
+  .main { flex: 1; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 48px 24px; }
   .page-header { margin-bottom: 40px; }
-  .page-header h2 { font-family: 'Playfair Display', serif; font-size: 36px; color: var(--forest); font-weight: 700; }
-  .page-header p { color: var(--muted); font-size: 15px; margin-top: 6px; line-height: 1.6; }
-  .badge { display: inline-block; background: var(--rust-lt); color: var(--rust); font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .page-header h2 { font-size: 36px; font-weight: 800; color: var(--primary-blue); letter-spacing: -0.02em; }
+  .page-header p { font-size: 16px; color: var(--text-muted); margin-top: 8px; }
+
+  /* ── Hero ── */
+  .hero {
+    background: var(--secondary-blue); border-radius: var(--radius-lg);
+    padding: 80px 60px; text-align: center; margin-bottom: 64px;
+    color: var(--white); position: relative; overflow: hidden;
+  }
+  .hero h1 { font-size: 48px; font-weight: 800; margin-bottom: 24px; letter-spacing: -0.03em; }
+  .hero p { font-size: 20px; opacity: 0.9; max-width: 700px; margin: 0 auto 40px; }
+  .hero-btn {
+    background: var(--white); color: var(--text-main);
+    padding: 16px 40px; border-radius: 50px; font-weight: 700;
+    font-size: 16px; border: none; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .hero-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
 
   /* ── Cards ── */
-  .card { background: var(--white); border-radius: 16px; padding: 32px; box-shadow: var(--shadow); margin-bottom: 24px; }
-  .card-title { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--forest); margin-bottom: 20px; font-weight: 700; }
-
-  /* ── Form elements ── */
-  .form-group { margin-bottom: 20px; }
-  label { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
-  input, textarea, select {
-    width: 100%; padding: 12px 16px; border: 1.5px solid var(--cream2);
-    border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px;
-    color: var(--ink); background: var(--cream); outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
+  .card {
+    background: var(--white); border-radius: var(--radius-md); padding: 40px;
+    box-shadow: var(--shadow); border: 1px solid rgba(124,149,228,0.1);
+    margin-bottom: 32px;
   }
-  input:focus, textarea:focus, select:focus { border-color: var(--sage); box-shadow: 0 0 0 3px rgba(122,158,95,0.15); }
-  textarea { resize: vertical; min-height: 120px; }
+  .card-title { font-size: 24px; font-weight: 700; color: var(--primary-blue); margin-bottom: 24px; }
+
+  /* ── Forms ── */
+  .form-group { margin-bottom: 24px; }
+  label { display: block; font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 10px; }
+  input, textarea, select {
+    width: 100%; padding: 14px 20px; border: 2px solid #E2E8F0;
+    border-radius: var(--radius-sm); font-family: inherit; font-size: 15px;
+    color: var(--text-main); background: var(--white); outline: none;
+    transition: all 0.2s;
+  }
+  input:focus, textarea:focus, select:focus { border-color: var(--primary-blue); box-shadow: 0 0 0 4px rgba(124,149,228,0.15); }
+  textarea { min-height: 140px; }
+
+  .upload-zone {
+    border: 2px dashed var(--secondary-blue); border-radius: var(--radius-md);
+    padding: 48px 32px; text-align: center; cursor: pointer;
+    background: rgba(165,180,242,0.05); transition: all 0.2s;
+    position: relative;
+  }
+  .upload-zone:hover { background: rgba(165,180,242,0.1); border-color: var(--primary-blue); }
+  .upload-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .upload-icon { font-size: 40px; margin-bottom: 16px; }
+  .upload-file-name { background: rgba(124,149,228,0.1); padding: 12px 20px; border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center; color: var(--primary-blue); font-weight: 600; }
+  .upload-or { text-align: center; margin: 16px 0; color: var(--text-muted); font-size: 14px; display: flex; align-items: center; gap: 12px; }
+  .upload-or::before, .upload-or::after { content: ''; flex: 1; height: 1px; background: #E2E8F0; }
 
   /* ── Buttons ── */
   .btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 12px 28px; border-radius: 10px; font-family: 'DM Sans', sans-serif;
-    font-size: 14px; font-weight: 500; cursor: pointer; border: none;
-    transition: all 0.2s; letter-spacing: 0.02em;
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 14px 32px; border-radius: var(--radius-sm); font-size: 15px;
+    font-weight: 600; cursor: pointer; border: none; transition: all 0.2s;
   }
-  .btn-primary { background: var(--forest); color: var(--cream); }
-  .btn-primary:hover { background: var(--forest2); transform: translateY(-1px); box-shadow: var(--shadow); }
-  .btn-primary:disabled { background: var(--sage); cursor: not-allowed; transform: none; box-shadow: none; }
-  .btn-outline { background: transparent; color: var(--forest); border: 1.5px solid var(--forest); }
-  .btn-outline:hover { background: var(--forest); color: var(--cream); }
-  .btn-rust { background: var(--rust); color: var(--white); }
-  .btn-rust:hover { background: #9e4e24; transform: translateY(-1px); }
+  .btn-primary { background: var(--primary-blue); color: var(--white); }
+  .btn-primary:hover { background: #6A82CE; transform: translateY(-1px); }
+  .btn-primary:disabled { background: #CBD5E0; cursor: not-allowed; transform: none; }
+  .btn-outline { background: transparent; border: 2px solid var(--primary-blue); color: var(--primary-blue); }
+  .btn-outline:hover { background: var(--primary-blue); color: var(--white); }
 
-  /* ── Results ── */
-  .result-block { background: var(--cream); border-radius: 12px; padding: 24px; margin-top: 24px; border: 1.5px solid var(--cream2); }
-  .result-block h4 { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--forest); margin-bottom: 14px; }
+  /* ── Grid/List Styles ── */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+  .job-card {
+    background: var(--secondary-blue); color: var(--white);
+    padding: 32px; border-radius: var(--radius-md); transition: transform 0.2s;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .job-card:hover { transform: translateY(-5px); }
+  .job-title { font-size: 20px; font-weight: 700; }
+  .job-company { font-size: 14px; opacity: 0.9; }
 
-  .skill-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--cream2); }
+  /* ── Feedback/Results ── */
+  .result-block { background: var(--white); border-radius: var(--radius-md); padding: 32px; margin-top: 24px; border: 1px solid #E2E8F0; }
+  .result-block h4 { font-size: 18px; color: var(--primary-blue); margin-bottom: 20px; font-weight: 700; }
+  .skill-item { display: flex; align-items: center; gap: 16px; padding: 16px 0; border-bottom: 1px solid #E2E8F0; }
   .skill-item:last-child { border-bottom: none; }
-  .priority-badge { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; margin-top: 2px; }
-  .priority-high   { background: #FEE2E2; color: #991B1B; }
-  .priority-medium { background: #FEF3C7; color: #92400E; }
-  .priority-low    { background: #D1FAE5; color: #065F46; }
-  .skill-name { font-weight: 500; font-size: 14px; color: var(--ink); }
-  .skill-resource { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .priority-badge { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 50px; text-transform: uppercase; }
+  .priority-high { background: #FEE2E2; color: #DC2626; }
+  .priority-medium { background: #FEF3C7; color: #D97706; }
+  .priority-low { background: #DCFCE7; color: #16A34A; }
+  
+  .strength-tag { display: inline-block; background: rgba(124,149,228,0.1); color: var(--primary-blue); padding: 6px 16px; border-radius: 50px; margin: 4px; font-size: 14px; font-weight: 600; }
+  
+  .summary-box { background: var(--primary-blue); color: var(--white); padding: 24px; border-radius: var(--radius-md); margin-top: 24px; }
 
-  .strength-tag { display: inline-block; background: var(--sage-lt); color: var(--forest); font-size: 12px; font-weight: 500; padding: 5px 12px; border-radius: 20px; margin: 4px; }
+  /* ── Chat/Interview ── */
+  .question-box { background: rgba(124,149,228,0.1); border-left: 6px solid var(--primary-blue); padding: 32px; margin-bottom: 32px; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+  .question-label { font-size: 12px; font-weight: 700; color: var(--primary-blue); text-transform: uppercase; margin-bottom: 8px; }
+  .question-text { font-size: 22px; font-weight: 600; color: var(--text-main); font-style: italic; }
 
-  .summary-box { background: var(--forest); color: var(--cream); border-radius: 12px; padding: 20px 24px; margin-top: 16px; }
-  .summary-box p { font-size: 14px; line-height: 1.7; font-style: italic; }
+  .score-circle { width: 100px; height: 100px; border-radius: 50%; border: 6px solid var(--primary-blue); display: flex; flex-direction: column; align-items: center; justify-content: center; float: right; margin-left: 24px; }
+  .score-num { font-size: 32px; font-weight: 800; color: var(--primary-blue); line-height: 1; }
+  .score-denom { font-size: 12px; color: var(--text-muted); }
 
-  /* ── Interview ── */
-  .question-box { background: var(--forest); border-radius: 14px; padding: 28px; margin-bottom: 24px; }
-  .question-box p { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--cream); line-height: 1.5; font-style: italic; }
-  .question-label { font-size: 11px; color: var(--sage-lt); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+  /* ── CV Improvements ── */
+  .ats-compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin-bottom: 40px; }
+  .ats-box { padding: 32px; border-radius: var(--radius-md); text-align: center; }
+  .ats-box.before { background: #FEE2E2; color: #991B1B; }
+  .ats-box.after { background: #DCFCE7; color: #065F46; }
+  .ats-score { font-size: 48px; font-weight: 800; }
+  
+  .tabs { display: flex; gap: 8px; background: #E2E8F0; padding: 6px; border-radius: 50px; width: fit-content; margin-bottom: 32px; }
+  .tab { padding: 10px 24px; border-radius: 50px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .tab.active { background: var(--white); color: var(--primary-blue); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
 
-  .score-circle { width: 80px; height: 80px; border-radius: 50%; background: var(--forest); display: flex; flex-direction: column; align-items: center; justify-content: center; float: right; margin-left: 20px; }
-  .score-num { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--cream); font-weight: 700; line-height: 1; }
-  .score-denom { font-size: 11px; color: var(--sage-lt); }
-
-  .tip-section { margin-top: 16px; }
-  .tip-section h5 { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
-  .tip-item { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 6px; font-size: 13px; color: var(--ink); line-height: 1.5; }
-  .tip-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--sage); flex-shrink: 0; margin-top: 6px; }
-
-
-  /* ── Generic item card (used by Roadmap returnship programs) ── */
-  .job-card { border: 1.5px solid var(--cream2); border-radius: 12px; padding: 20px; margin-bottom: 12px; transition: border-color 0.2s, box-shadow 0.2s; }
-  .job-card:hover { border-color: var(--sage); box-shadow: var(--shadow); }
-  .job-title { font-weight: 600; font-size: 15px; color: var(--ink); }
-  .job-company { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .improvement-item { border: 1px solid #E2E8F0; padding: 24px; border-radius: var(--radius-md); margin-bottom: 16px; background: var(--white); }
+  .improvement-section { font-size: 12px; font-weight: 700; color: var(--primary-blue); text-transform: uppercase; margin-bottom: 12px; }
 
   /* ── Roadmap ── */
-  .week-card { border-left: 4px solid var(--sage); padding: 20px 24px; margin-bottom: 16px; background: var(--white); border-radius: 0 12px 12px 0; box-shadow: var(--shadow); }
-  .week-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-  .week-num { width: 36px; height: 36px; border-radius: 50%; background: var(--forest); color: var(--cream); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
-  .week-title { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--forest); font-weight: 700; }
-  .week-milestone { font-size: 12px; background: var(--sage-lt); color: var(--forest); padding: 6px 12px; border-radius: 6px; display: inline-block; margin-bottom: 10px; }
-  .week-tasks { list-style: none; }
-  .week-tasks li { font-size: 13px; color: var(--ink); padding: 4px 0; display: flex; gap: 8px; }
-  .week-tasks li::before { content: '→'; color: var(--sage); font-weight: 600; flex-shrink: 0; }
-  .cert-chip { display: inline-block; background: var(--rust-lt); color: var(--rust); font-size: 12px; padding: 5px 14px; border-radius: 20px; margin: 4px; font-weight: 500; }
-
-  /* ── CV Rewrite ── */
-  .ats-compare { display: flex; gap: 16px; margin: 16px 0; }
-  .ats-box { flex: 1; border-radius: 10px; padding: 16px; text-align: center; }
-  .ats-box.before { background: #FEE2E2; }
-  .ats-box.after  { background: #D1FAE5; }
-  .ats-score { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; line-height: 1; }
-  .ats-box.before .ats-score { color: #991B1B; }
-  .ats-box.after  .ats-score { color: #065F46; }
-  .ats-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px; color: var(--muted); }
-  .improvement-item { border-left: 3px solid var(--rust); padding: 12px 16px; margin-bottom: 10px; background: var(--cream); border-radius: 0 8px 8px 0; }
-  .improvement-section { font-size: 11px; font-weight: 600; color: var(--rust); text-transform: uppercase; margin-bottom: 6px; }
-  .improvement-reason { font-size: 12px; color: var(--muted); margin-top: 6px; font-style: italic; }
+  .week-card { background: var(--white); border-radius: var(--radius-md); padding: 32px; margin-bottom: 24px; box-shadow: var(--shadow); border: 1px solid rgba(124,149,228,0.1); position: relative; }
+  .week-num { position: absolute; left: -16px; top: -16px; width: 48px; height: 48px; background: var(--primary-blue); color: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; border: 4px solid var(--white); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .week-title { font-size: 20px; font-weight: 700; color: var(--primary-blue); margin-bottom: 12px; }
+  .week-milestone { background: rgba(124,149,228,0.1); color: var(--primary-blue); padding: 8px 16px; border-radius: 8px; font-weight: 600; display: inline-block; margin-bottom: 16px; }
 
   /* ── Loading ── */
-  .loading { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 14px; padding: 24px 0; }
-  .spinner { width: 20px; height: 20px; border: 2px solid var(--cream2); border-top-color: var(--forest); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  .loading { display: flex; align-items: center; gap: 16px; color: var(--text-muted); justify-content: center; padding: 60px; font-weight: 500; }
+  .spinner { width: 32px; height: 32px; border: 4px solid #E2E8F0; border-top-color: var(--primary-blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ── Row/Grid helpers ── */
-  .row { display: flex; gap: 20px; flex-wrap: wrap; }
-  .col-half { flex: 1; min-width: 200px; }
-  .divider { border: none; border-top: 1px solid var(--cream2); margin: 24px 0; }
-  .text-muted { color: var(--muted); font-size: 13px; }
-  .mt-8 { margin-top: 8px; }
-  .mt-16 { margin-top: 16px; }
-  .error-box { background: #FEE2E2; color: #991B1B; padding: 14px 18px; border-radius: 10px; font-size: 13px; margin-top: 16px; }
-
-  /* ── File Upload ── */
-  .upload-zone {
-    border: 2px dashed var(--cream2); border-radius: 12px; padding: 32px 24px;
-    text-align: center; cursor: pointer; transition: all 0.2s; background: var(--cream);
-    position: relative;
-  }
-  .upload-zone:hover, .upload-zone.dragover { border-color: var(--sage); background: var(--sage-lt); }
-  .upload-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-  .upload-icon { font-size: 32px; margin-bottom: 8px; }
-  .upload-label { font-size: 14px; font-weight: 500; color: var(--forest); }
-  .upload-hint  { font-size: 12px; color: var(--muted); margin-top: 4px; }
-  .upload-file-name { display: flex; align-items: center; gap: 10px; background: var(--sage-lt); border-radius: 8px; padding: 10px 14px; margin-top: 12px; font-size: 13px; color: var(--forest); font-weight: 500; }
-  .upload-file-remove { margin-left: auto; cursor: pointer; color: var(--muted); font-size: 16px; line-height: 1; }
-  .upload-file-remove:hover { color: var(--rust); }
-  .upload-or { display: flex; align-items: center; gap: 12px; margin: 16px 0; color: var(--muted); font-size: 13px; }
-  .upload-or::before, .upload-or::after { content: ''; flex: 1; height: 1px; background: var(--cream2); }
-
-  /* ── Tabs (for CV) ── */
-  .tabs { display: flex; gap: 4px; background: var(--cream2); padding: 4px; border-radius: 10px; margin-bottom: 20px; width: fit-content; }
-  .tab { padding: 8px 20px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; color: var(--muted); }
-  .tab.active { background: var(--white); color: var(--forest); box-shadow: var(--shadow); }
+  .error-box { background: #FEE2E2; color: #DC2626; padding: 20px; border-radius: var(--radius-sm); margin-top: 24px; font-weight: 500; }
 `;
 
 // ── API helpers ───────────────────────────────────────────────────────────────
@@ -212,11 +194,10 @@ async function api(path, body) {
   return data;
 }
 
-// ── Shared user ID (for demo, fixed at 1) ────────────────────────────────────
 const USER_ID = 1;
 
 // ─────────────────────────────────────────────────────────────────────────────
-// FEATURE 1 — Skills Gap Analyzer
+// SHARED COMPONENTS
 // ─────────────────────────────────────────────────────────────────────────────
 function FileUploadZone({ file, onFile, onClear, accept = ".pdf,.doc,.docx" }) {
   const [drag, setDrag] = useState(false);
@@ -230,109 +211,23 @@ function FileUploadZone({ file, onFile, onClear, accept = ".pdf,.doc,.docx" }) {
           onDrop={e => { e.preventDefault(); setDrag(false); const f = e.dataTransfer.files[0]; if (f) onFile(f); }}
         >
           <input type="file" accept={accept} onChange={e => { if (e.target.files[0]) onFile(e.target.files[0]); }} />
-          <div className="upload-icon">📄</div>
-          <div className="upload-label">Drop your CV here or click to browse</div>
-          <div className="upload-hint">Supports PDF and DOCX files</div>
+          <div className="upload-icon">📁</div>
+          <div style={{ fontWeight: 600, fontSize: '16px', color: 'var(--primary-blue)' }}>Drop your CV here or click to browse</div>
+          <div style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '8px' }}>Supports PDF and DOCX files</div>
         </div>
       ) : (
         <div className="upload-file-name">
-          📄 {file.name}
-          <span className="upload-file-remove" onClick={onClear}>✕</span>
+          <span>📄 {file.name}</span>
+          <span style={{ cursor: 'pointer' }} onClick={onClear}>✕</span>
         </div>
       )}
     </div>
   );
 }
 
-function SkillsAnalyzer() {
-  const [file, setFile] = useState(null);
-  const [cvText, setCvText] = useState("");
-  const [targetRole, setTargetRole] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState(null);
-
-  async function submit() {
-    setLoading(true); setError(null); setResult(null);
-    try {
-      const form = new FormData();
-      form.append("user_id", USER_ID);
-      form.append("target_role", targetRole);
-      if (file) form.append("file", file);
-      else form.append("cv_text", cvText);
-
-      const res = await fetch(`${API_BASE}/skills/analyze`, { method: "POST", body: form });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || "Request failed");
-      setResult(data);
-    } catch (e) { setError(e.message); }
-    setLoading(false);
-  }
-
-  const canSubmit = !loading && targetRole && (file || cvText);
-
-  return (
-    <div>
-      <div className="page-header">
-        <div className="badge">Feature 1</div>
-        <h2>Skills Gap Analyzer</h2>
-        <p>Upload your CV and target role to get a prioritized list of skills to update.</p>
-      </div>
-
-      <div className="card">
-        <div className="form-group">
-          <label>Target Role</label>
-          <input placeholder="e.g. Head of Digital Marketing" value={targetRole} onChange={e => setTargetRole(e.target.value)} />
-        </div>
-        <div className="form-group">
-          <label>Upload Your CV</label>
-          <FileUploadZone file={file} onFile={setFile} onClear={() => setFile(null)} />
-        </div>
-        <div className="upload-or">or paste as text</div>
-        <div className="form-group">
-          <textarea rows={4} placeholder="Paste your CV content here..." value={cvText} onChange={e => setCvText(e.target.value)} disabled={!!file} style={{ opacity: file ? 0.4 : 1 }} />
-        </div>
-        <button className="btn btn-primary" onClick={submit} disabled={!canSubmit}>
-          {loading ? "Analyzing…" : "→ Analyze Skills Gap"}
-        </button>
-        {error && <div className="error-box">⚠ {error}</div>}
-      </div>
-
-      {loading && <div className="loading"><div className="spinner" /> Analyzing your CV with AI…</div>}
-
-      {result && (
-        <>
-          <div className="result-block">
-            <h4>Missing Skills ({result.missing_skills?.length})</h4>
-            {result.missing_skills?.map((s, i) => (
-              <div key={i} className="skill-item">
-                <span className={`priority-badge priority-${s.priority}`}>{s.priority}</span>
-                <div>
-                  <div className="skill-name">{s.skill}</div>
-                  <div className="skill-resource">📚 {s.resource}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="result-block">
-            <h4>Your Existing Strengths</h4>
-            <div style={{ marginTop: 4 }}>
-              {result.existing_strengths?.map((s, i) => <span key={i} className="strength-tag">{s}</span>)}
-            </div>
-          </div>
-
-          <div className="summary-box">
-            <p>"{result.summary}"</p>
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
-// FEATURE 2 — Mock Interview Coach
+// FEATURE 2 — Mock Interview Coach (ChatBot)
 // ─────────────────────────────────────────────────────────────────────────────
 function InterviewCoach() {
   const [jobRole, setJobRole] = useState("");
@@ -363,40 +258,39 @@ function InterviewCoach() {
   function reset() { setSession(null); setFeedback(null); setAnswer(""); setError(null); }
 
   return (
-    <div>
+    <div className="container">
       <div className="page-header">
-        <div className="badge">Feature 2</div>
-        <h2>Mock Interview Coach</h2>
-        <p>Practice role-specific questions and get detailed AI feedback to rebuild your confidence.</p>
+        <h2>Interview ChatBot</h2>
+        <p>Practice with AI-generated interview questions and get real-time feedback on your answers.</p>
       </div>
 
       {!session ? (
         <div className="card">
           <div className="form-group">
-            <label>Job Role</label>
-            <input placeholder="e.g. Product Manager" value={jobRole} onChange={e => setJobRole(e.target.value)} />
+            <label>What role are you interviewing for?</label>
+            <input placeholder="e.g. Marketing Director" value={jobRole} onChange={e => setJobRole(e.target.value)} />
           </div>
           <button className="btn btn-primary" onClick={startSession} disabled={loading || !jobRole}>
-            {loading ? "Generating…" : "→ Start Mock Interview"}
+            {loading ? "Preparing..." : "Start Practice Session"}
           </button>
           {error && <div className="error-box">⚠ {error}</div>}
         </div>
       ) : (
         <>
           <div className="question-box">
-            <div className="question-label">Your Interview Question</div>
-            <p>{session.question}</p>
+            <div className="question-label">Question for you:</div>
+            <div className="question-text">"{session.question}"</div>
           </div>
 
           {!feedback ? (
             <div className="card">
               <div className="form-group">
                 <label>Your Answer</label>
-                <textarea rows={5} placeholder="Type your answer here…" value={answer} onChange={e => setAnswer(e.target.value)} />
+                <textarea rows={5} placeholder="Type your answer here..." value={answer} onChange={e => setAnswer(e.target.value)} />
               </div>
               <div style={{ display: "flex", gap: 12 }}>
                 <button className="btn btn-primary" onClick={submitAnswer} disabled={loading || !answer}>
-                  {loading ? "Scoring…" : "→ Submit Answer"}
+                  {loading ? "Evaluating..." : "Submit Answer"}
                 </button>
                 <button className="btn btn-outline" onClick={reset}>New Question</button>
               </div>
@@ -404,12 +298,13 @@ function InterviewCoach() {
             </div>
           ) : (
             <div className="card">
-              <div style={{ overflow: "hidden" }}>
+              <div style={{ overflow: "hidden", marginBottom: '32px' }}>
                 <div className="score-circle">
                   <div className="score-num">{feedback.score?.toFixed(1)}</div>
-                  <div className="score-denom">/ 10</div>
+                  <div className="score-denom">out of 10</div>
                 </div>
-                <div className="card-title">Your Feedback</div>
+                <div className="card-title">AI Feedback</div>
+                <p style={{ color: 'var(--text-muted)' }}>Great job practicing today! Here are some tips to improve.</p>
               </div>
 
               {[
@@ -417,40 +312,39 @@ function InterviewCoach() {
                 { label: "Clarity", tips: feedback.clarity_tips },
                 { label: "Relevance", tips: feedback.relevance_tips },
               ].map(({ label, tips }) => tips?.length > 0 && (
-                <div key={label} className="tip-section">
-                  <h5>{label}</h5>
-                  {tips.map((t, i) => (
-                    <div key={i} className="tip-item"><div className="tip-dot" />{t}</div>
-                  ))}
+                <div key={label} style={{ marginBottom: '24px' }}>
+                  <h5 style={{ fontSize: '14px', fontWeight: 700, textTransform: 'uppercase', color: 'var(--primary-blue)', marginBottom: '12px' }}>{label}</h5>
+                  <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {tips.map((t, i) => (
+                      <li key={i} style={{ fontSize: '15px', display: 'flex', gap: '10px' }}>
+                        <span style={{ color: 'var(--primary-blue)' }}>•</span> {t}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               ))}
 
               {feedback.improved_answer_example && (
-                <>
-                  <hr className="divider" />
-                  <div className="tip-section">
-                    <h5>Improved Answer Example</h5>
-                    <div className="summary-box" style={{ marginTop: 8 }}>
-                      <p>"{feedback.improved_answer_example}"</p>
-                    </div>
-                  </div>
-                </>
+                <div className="summary-box">
+                  <div style={{ fontWeight: 700, marginBottom: '8px', fontSize: '14px', textTransform: 'uppercase' }}>Improved Example</div>
+                  <p style={{ fontStyle: 'italic', opacity: 0.9 }}>"{feedback.improved_answer_example}"</p>
+                </div>
               )}
 
-              <div style={{ marginTop: 20 }}>
-                <button className="btn btn-primary" onClick={reset}>Try Another Question</button>
+              <div style={{ marginTop: 40, borderTop: '1px solid #E2E8F0', paddingTop: '32px' }}>
+                <button className="btn btn-primary" onClick={reset}>Next Question</button>
               </div>
             </div>
           )}
         </>
       )}
-      {loading && <div className="loading"><div className="spinner" />Processing…</div>}
+      {loading && <div className="loading"><div className="spinner" /> AI is thinking...</div>}
     </div>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// FEATURE 3 — CV Rewriter
+// FEATURE 3 — CV Analysis (Rewriter)
 // ─────────────────────────────────────────────────────────────────────────────
 function CVRewriter() {
   const [file, setFile] = useState(null);
@@ -479,87 +373,85 @@ function CVRewriter() {
   const canSubmit = !loading && (file || originalCV);
 
   return (
-    <div>
+    <div className="container">
       <div className="page-header">
-        <div className="badge">Feature 3</div>
-        <h2>Bias-Proof CV Rewriter</h2>
-        <p>Reframe career gaps positively and optimize your CV for ATS systems.</p>
+        <h2>CV Analysis & Rewrite</h2>
+        <p>Optimize your CV for ATS systems and reframe career gaps with confidence.</p>
       </div>
 
       <div className="card">
         <div className="form-group">
-          <label>Upload Your CV</label>
+          <label>Upload Your Current CV</label>
           <FileUploadZone file={file} onFile={f => { setFile(f); setOriginalCV(""); }} onClear={() => setFile(null)} />
         </div>
         <div className="upload-or">or paste as text</div>
         <div className="form-group">
-          <textarea rows={6} placeholder="Paste your full CV here, including any career gaps…" value={originalCV} onChange={e => { setOriginalCV(e.target.value); setFile(null); }} disabled={!!file} style={{ opacity: file ? 0.4 : 1 }} />
+          <textarea rows={6} placeholder="Paste your CV content here..." value={originalCV} onChange={e => { setOriginalCV(e.target.value); setFile(null); }} disabled={!!file} style={{ opacity: file ? 0.4 : 1 }} />
         </div>
-        <button className="btn btn-rust" onClick={submit} disabled={!canSubmit}>
-          {loading ? "Rewriting…" : "→ Rewrite My CV"}
+        <button className="btn btn-primary" onClick={submit} disabled={!canSubmit}>
+          {loading ? "Processing..." : "Analyze & Rewrite"}
         </button>
         {error && <div className="error-box">⚠ {error}</div>}
       </div>
 
-      {loading && <div className="loading"><div className="spinner" />Rewriting your CV with AI…</div>}
+      {loading && <div className="loading"><div className="spinner" /> Optimizing your CV with AI...</div>}
 
       {result && (
-        <>
+        <div className="result-section">
           <div className="ats-compare">
             <div className="ats-box before">
               <div className="ats-score">{result.ats_score_before}</div>
-              <div className="ats-label">ATS Score Before</div>
+              <div style={{ fontWeight: 600 }}>ATS Score Before</div>
             </div>
-            <div style={{ display: "flex", alignItems: "center", fontSize: 24, color: "var(--muted)" }}>→</div>
+            <div style={{ fontSize: '32px', color: '#CBD5E0' }}>→</div>
             <div className="ats-box after">
               <div className="ats-score">{result.ats_score_after}</div>
-              <div className="ats-label">ATS Score After</div>
+              <div style={{ fontWeight: 600 }}>Optimized Score</div>
             </div>
           </div>
 
           <div className="tabs">
             <div className={`tab ${activeTab === "rewritten" ? "active" : ""}`} onClick={() => setActiveTab("rewritten")}>Rewritten CV</div>
-            <div className={`tab ${activeTab === "improvements" ? "active" : ""}`} onClick={() => setActiveTab("improvements")}>Improvements ({result.improvements?.length})</div>
+            <div className={`tab ${activeTab === "improvements" ? "active" : ""}`} onClick={() => setActiveTab("improvements")}>Detailed Improvements</div>
           </div>
 
           {activeTab === "rewritten" && (
             <div className="card">
-              <pre style={{ whiteSpace: "pre-wrap", fontFamily: "'DM Sans', sans-serif", fontSize: 13, lineHeight: 1.7, color: "var(--ink)" }}>
+              <div className="card-title">Proposed Content</div>
+              <pre style={{ whiteSpace: "pre-wrap", fontFamily: "inherit", fontSize: "15px", lineHeight: 1.8, color: "var(--text-main)" }}>
                 {result.rewritten_cv}
               </pre>
             </div>
           )}
 
           {activeTab === "improvements" && (
-            <div>
+            <div className="grid">
               {result.improvements?.map((imp, i) => (
                 <div key={i} className="improvement-item">
                   <div className="improvement-section">{imp.section}</div>
-                  <div style={{ display: "flex", gap: 12, fontSize: 13 }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ color: "var(--muted)", fontSize: 11, marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>Before</div>
-                      <div style={{ color: "#991B1B" }}>{imp.original}</div>
+                  <div style={{ display: "flex", flexDirection: 'column', gap: 12 }}>
+                    <div>
+                      <div style={{ fontSize: "12px", color: "#DC2626", fontWeight: 700, marginBottom: 4 }}>BEFORE</div>
+                      <div style={{ fontSize: '14px', fontStyle: 'italic' }}>{imp.original}</div>
                     </div>
-                    <div style={{ color: "var(--muted)" }}>→</div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ color: "var(--muted)", fontSize: 11, marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>After</div>
-                      <div style={{ color: "#065F46" }}>{imp.rewritten}</div>
+                    <div style={{ borderTop: '1px dashed #E2E8F0', paddingTop: 12 }}>
+                      <div style={{ fontSize: "12px", color: "#16A34A", fontWeight: 700, marginBottom: 4 }}>AFTER</div>
+                      <div style={{ fontSize: '14px', fontWeight: 500 }}>{imp.rewritten}</div>
                     </div>
                   </div>
-                  <div className="improvement-reason">💡 {imp.reason}</div>
+                  <div style={{ marginTop: 16, fontSize: '13px', color: 'var(--text-muted)' }}>💡 {imp.reason}</div>
                 </div>
               ))}
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );
 }
 
-
 // ─────────────────────────────────────────────────────────────────────────────
-// FEATURE 5 — Roadmap Generator
+// FEATURE 5 — Roadmap Generator (Mentor)
 // ─────────────────────────────────────────────────────────────────────────────
 function RoadmapGenerator() {
   const [form, setForm] = useState({ field: "", gap_months: 12, target_role: "" });
@@ -579,87 +471,125 @@ function RoadmapGenerator() {
   }
 
   return (
-    <div>
+    <div className="container">
       <div className="page-header">
-        <div className="badge">Feature 5</div>
-        <h2>Returnship Roadmap</h2>
-        <p>Get a personalised week-by-week plan to re-enter your field with confidence.</p>
+        <h2>Personalized Mentorship Roadmap</h2>
+        <p>Get a step-by-step plan to update your skills and re-enter your industry.</p>
       </div>
 
       <div className="card">
-        <div className="row">
-          <div className="col-half">
-            <div className="form-group">
-              <label>Your Field</label>
-              <input placeholder="e.g. Data Science" value={form.field} onChange={e => set("field", e.target.value)} />
-            </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+          <div className="form-group">
+            <label>Industry / Field</label>
+            <input placeholder="e.g. Data Science" value={form.field} onChange={e => set("field", e.target.value)} />
           </div>
-          <div className="col-half">
-            <div className="form-group">
-              <label>Career Gap (months)</label>
-              <input type="number" min={1} max={120} value={form.gap_months} onChange={e => set("gap_months", parseInt(e.target.value))} />
-            </div>
+          <div className="form-group">
+            <label>Career Gap (months)</label>
+            <input type="number" min={1} max={120} value={form.gap_months} onChange={e => set("gap_months", parseInt(e.target.value))} />
           </div>
         </div>
         <div className="form-group">
-          <label>Target Role (optional)</label>
+          <label>Specific Target Role (optional)</label>
           <input placeholder="e.g. Senior Data Analyst" value={form.target_role} onChange={e => set("target_role", e.target.value)} />
         </div>
         <button className="btn btn-primary" onClick={submit} disabled={loading || !form.field}>
-          {loading ? "Building…" : "→ Generate My Roadmap"}
+          {loading ? "Building Roadmap..." : "Generate Roadmap"}
         </button>
         {error && <div className="error-box">⚠ {error}</div>}
       </div>
 
-      {loading && <div className="loading"><div className="spinner" />Building your personalised roadmap…</div>}
+      {loading && <div className="loading"><div className="spinner" /> Crafting your personalized plan...</div>}
 
       {result && (
-        <>
-          <p className="text-muted mt-16" style={{ marginBottom: 24 }}>
-            Your {result.duration_weeks}-week re-entry plan for <strong>{result.field}</strong>
-          </p>
+        <div className="result-section">
+          <div className="card" style={{ background: 'var(--primary-blue)', color: 'white', border: 'none' }}>
+            <h3 style={{ fontSize: '24px' }}>Your {result.duration_weeks}-Week Re-entry Plan</h3>
+            <p style={{ opacity: 0.9 }}>Tailored for re-entering the field of <strong>{result.field}</strong>.</p>
+          </div>
 
-          {result.weeks?.map((week, i) => (
-            <div key={i} className="week-card">
-              <div className="week-header">
+          <div style={{ marginTop: '48px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
+            {result.weeks?.map((week, i) => (
+              <div key={i} className="week-card">
                 <div className="week-num">{week.week}</div>
                 <div className="week-title">{week.title}</div>
-              </div>
-              <div className="week-milestone">🎯 {week.milestone}</div>
-              <ul className="week-tasks">
-                {week.tasks?.map((t, j) => <li key={j}>{t}</li>)}
-              </ul>
-              {week.resources?.length > 0 && (
-                <div style={{ marginTop: 10 }}>
-                  {week.resources.map((r, j) => (
-                    <span key={j} style={{ fontSize: 12, color: "var(--forest2)", marginRight: 12 }}>📎 {r}</span>
+                <div className="week-milestone">Target: {week.milestone}</div>
+                <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {week.tasks?.map((t, j) => (
+                    <li key={j} style={{ fontSize: '15px', display: 'flex', gap: '12px' }}>
+                      <span style={{ color: 'var(--primary-blue)', fontWeight: 700 }}>→</span> {t}
+                    </li>
                   ))}
-                </div>
-              )}
-            </div>
-          ))}
+                </ul>
+              </div>
+            ))}
+          </div>
 
           {result.recommended_certifications?.length > 0 && (
-            <div className="card" style={{ marginTop: 24 }}>
+            <div className="card" style={{ marginTop: '32px' }}>
               <div className="card-title">Recommended Certifications</div>
-              {result.recommended_certifications.map((c, i) => <span key={i} className="cert-chip">{c}</span>)}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                {result.recommended_certifications.map((c, i) => <span key={i} className="strength-tag">{c}</span>)}
+              </div>
             </div>
           )}
 
           {result.returnship_programs?.length > 0 && (
             <div className="card">
               <div className="card-title">Returnship Programs</div>
-              {result.returnship_programs.map((p, i) => (
-                <div key={i} className="job-card">
-                  <div className="job-title">{p.program_name}</div>
-                  <div className="job-company">{p.company} · {p.duration}</div>
-                  <a href={p.apply_url} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: "var(--forest2)", marginTop: 6, display: "inline-block" }}>Apply → {p.apply_url}</a>
-                </div>
-              ))}
+              <div className="grid">
+                {result.returnship_programs.map((p, i) => (
+                  <div key={i} className="job-card" style={{ background: 'white', color: 'var(--text-main)', border: '1px solid #E2E8F0' }}>
+                    <div style={{ fontWeight: 700, fontSize: '18px', color: 'var(--primary-blue)' }}>{p.program_name}</div>
+                    <div style={{ fontSize: '14px', fontWeight: 600 }}>{p.company}</div>
+                    <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Duration: {p.duration}</div>
+                    <a href={p.apply_url} target="_blank" rel="noreferrer" className="btn btn-outline" style={{ marginTop: '12px', fontSize: '13px', padding: '10px' }}>Learn More</a>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
-        </>
+        </div>
       )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LANDING PAGE
+// ─────────────────────────────────────────────────────────────────────────────
+function Home({ onNavigate }) {
+  return (
+    <div>
+      <section className="container">
+        <div className="hero">
+          <h1>Empowering Women to Return to the Workforce</h1>
+          <p>Your journey back to a fulfilling career starts here. Get AI-powered CV analysis, interview coaching, and personalized roadmaps.</p>
+          <button className="hero-btn" onClick={() => onNavigate("cv")}>Get Started Today</button>
+        </div>
+      </section>
+
+      <section className="container" style={{ paddingTop: 0 }}>
+        <h2 style={{ marginBottom: "32px", fontSize: "32px", fontWeight: 800 }}>Available Opportunities</h2>
+        <div className="grid">
+          {[
+            { title: "Senior Marketing Manager", company: "TechCorp Solutions" },
+            { title: "Product Designer", company: "Creative Flow" },
+            { title: "Data Analyst", company: "Insight Partners" },
+            { title: "Customer Success Lead", company: "Global Reach" },
+          ].map((job, i) => (
+            <div key={i} className="job-card">
+              <div className="job-title">{job.title}</div>
+              <div className="job-company">{job.company}</div>
+              <button className="btn" style={{ background: "white", color: "#7C95E4", fontWeight: 700 }}>View Project</button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <footer className="container" style={{ textAlign: "center", borderTop: "1px solid #E2E8F0", marginTop: "80px", color: "var(--text-muted)", paddingBottom: '80px' }}>
+        <p>© 2026 CareerWomen. All rights reserved.</p>
+        <p style={{ marginTop: "8px" }}>Contact us: info@careerwomen.com | Follow us @CareerFem</p>
+      </footer>
     </div>
   );
 }
@@ -668,37 +598,37 @@ function RoadmapGenerator() {
 // ROOT APP
 // ─────────────────────────────────────────────────────────────────────────────
 const PAGES = [
-  { id: "skills", icon: "🔍", label: "Skills Analyzer", component: SkillsAnalyzer },
-  { id: "interview", icon: "🎤", label: "Interview Coach", component: InterviewCoach },
-  { id: "cv", icon: "✍️", label: "CV Rewriter", component: CVRewriter },
-  { id: "roadmap", icon: "🗺️", label: "Roadmap Generator", component: RoadmapGenerator },
+  { id: "home", label: "Home", component: Home },
+  { id: "cv", label: "CV Analysis", component: CVRewriter },
+  { id: "roadmap", label: "Mentor", component: RoadmapGenerator },
+  { id: "interview", label: "ChatBot", component: InterviewCoach },
+  { id: "account", label: "My Account", component: () => <div className="container"><h2>My Account</h2><p>Account settings and profile coming soon.</p></div> },
 ];
 
 export default function App() {
-  const [page, setPage] = useState("skills");
+  const [page, setPage] = useState("home");
   const ActivePage = PAGES.find(p => p.id === page)?.component;
 
   return (
     <>
       <style>{style}</style>
       <div className="app">
-        <nav className="sidebar">
-          <div className="sidebar-logo">
-            <h1>Returnship</h1>
-            <p>Career Re-entry Platform</p>
-          </div>
-          {PAGES.map(p => (
-            <div key={p.id} className={`nav-item ${page === p.id ? "active" : ""}`} onClick={() => setPage(p.id)}>
-              <span className="nav-icon">{p.icon}</span>
-              {p.label}
-            </div>
-          ))}
-          <div className="sidebar-footer">
-            <p>Helping women return to work after career breaks.</p>
-          </div>
-        </nav>
+        <header className="header">
+          <div className="header-logo" onClick={() => setPage("home")}>CareerWomen</div>
+          <nav className="navbar">
+            {PAGES.map(p => (
+              <div
+                key={p.id}
+                className={`nav-link ${page === p.id ? "active" : ""}`}
+                onClick={() => setPage(p.id)}
+              >
+                {p.label}
+              </div>
+            ))}
+          </nav>
+        </header>
         <main className="main">
-          {ActivePage && <ActivePage />}
+          {ActivePage && <ActivePage onNavigate={setPage} />}
         </main>
       </div>
     </>

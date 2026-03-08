@@ -1,0 +1,27 @@
+services:
+  - type: web
+    runtime: docker
+    name: server
+    dockerfilePath: ./Dockerfile
+    dockerCommand: uvicorn main:app --host=0.0.0.0 --port=8000
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        value: sqlite:////app/data/returnship.db
+    disk:
+      name: sqlite-data
+      mountPath: /app/data
+      sizeGB: 1
+
+  - type: web
+    runtime: docker
+    name: frontend
+    dockerfilePath: ./Dockerfile
+    dockerCommand: uvicorn main:app --host=0.0.0.0 --port=3000
+    plan: free
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: server
+          type: web
+          property: host

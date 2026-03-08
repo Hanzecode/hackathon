@@ -157,7 +157,7 @@ JOB ROLE: {job_role}
 QUESTION: {question}
 ANSWER: {answer}
 """
-    raw = await _call_gemini(system, user)
+    raw = await _call_gemini(system, user, max_tokens=5000)
     return _parse_json(raw)
 
 
@@ -224,5 +224,5 @@ Return JSON with this exact structure:
   ]
 }}
 """
-    raw = await _call_gemini(system, user, max_tokens=3000)
+    raw = await _call_gemini(system, user, max_tokens=5000)
     return _parse_json(raw)
