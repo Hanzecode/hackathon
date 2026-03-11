@@ -17,9 +17,7 @@ Many talented women face hurdles when re-entering the workforce. CareerWomen use
 | :--- | :--- | :--- |
 | **CV Bias-Proofing** | ATS-optimized CV rewrite that reframes career gaps as growth periods. | Reframes caregiving & hiatuses into professional "transferable skills". |
 | **Mock Interview Coach** | A realistic, role-specific chatbot for interview practice. | Generates role-specific questions and scores answers on confidence, clarity, and relevance. |
-| **Skills Gap Analyzer** | compares your CV against a target role to find missing certifications. | Analyzes industry trends to spot what's changed in your field during your break. |
 | **Mentorship Roadmap** | personalized week-by-week re-entry plan. | Crafts a custom learning path and suggests real returnship programs (e.g., Google's Reach). |
-| **Flexible Job Match** | Matches users to roles that respect career-break needs (remote/flexible). | Scores job listings based on specific flexibility requirements. |
 
 ---
 
@@ -79,7 +77,7 @@ npm install
 # Start the Vite development server
 npm run dev
 ```
-*Frontend will be available at `http://localhost:5173` (or check console).*
+*Frontend will be available at `http://localhost:3000` (or check console).*
 
 ---
 
@@ -102,26 +100,20 @@ You can run the entire stack (exclusive of the external Gemini API) using Docker
 
 ## 📄 API Documentation
 
-### Register User
-`POST /users` (json: `{name, email, field, gap_months}`)
-
-### 1. Skills Analyze
-`POST /skills/analyze` (form-data: `file` or `cv_text`, `target_role`)
-
-### 2. Interview Simulation
+### 1. Interview Simulation
 - `POST /interview/start` (json: `{job_role}`)
 - `POST /interview/answer` (json: `{session_id, answer}`)
 
-### 3. CV Rewrite (Bias-Proof)
+### 2. CV Rewrite (Bias-Proof)
 `POST /cv/rewrite` (form-data: `file` or `original_cv`)
 
-### 5. Roadmap Generation
+### 3. Roadmap Generation
 `POST /roadmap/generate` (json: `{field, gap_months, target_role}`)
 
 ---
 
 ## 🤝 Contributing
-Built with ❤️ during the Hanzecode Hackathon. 
+Built with ❤️ during the Hackathon Hack for Good. 
 
 <<<<<<< HEAD
 © 2026 CareerWomen Project.
