@@ -123,4 +123,8 @@ You can run the entire stack (exclusive of the external Gemini API) using Docker
 ## 🤝 Contributing
 Built with ❤️ during the Hanzecode Hackathon. 
 
+<<<<<<< HEAD
 © 2026 CareerWomen Project.
+=======
+© 2026 CareerWomen Project.
+>>>>>>> efd3a3f (edit readmefile)
