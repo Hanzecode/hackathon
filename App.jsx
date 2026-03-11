@@ -451,7 +451,7 @@ function CVRewriter() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// FEATURE 5 — Roadmap Generator (Mentor)
+// FEATURE 4 — Roadmap Generator (Mentor)
 // ─────────────────────────────────────────────────────────────────────────────
 function RoadmapGenerator() {
   const [form, setForm] = useState({ field: "", gap_months: 12, target_role: "" });
@@ -568,23 +568,7 @@ function Home({ onNavigate }) {
         </div>
       </section>
 
-      <section className="container" style={{ paddingTop: 0 }}>
-        <h2 style={{ marginBottom: "32px", fontSize: "32px", fontWeight: 800 }}>Available Opportunities</h2>
-        <div className="grid">
-          {[
-            { title: "Senior Marketing Manager", company: "TechCorp Solutions" },
-            { title: "Product Designer", company: "Creative Flow" },
-            { title: "Data Analyst", company: "Insight Partners" },
-            { title: "Customer Success Lead", company: "Global Reach" },
-          ].map((job, i) => (
-            <div key={i} className="job-card">
-              <div className="job-title">{job.title}</div>
-              <div className="job-company">{job.company}</div>
-              <button className="btn" style={{ background: "white", color: "#7C95E4", fontWeight: 700 }}>View Project</button>
-            </div>
-          ))}
-        </div>
-      </section>
+
 
       <footer className="container" style={{ textAlign: "center", borderTop: "1px solid #E2E8F0", marginTop: "80px", color: "var(--text-muted)", paddingBottom: '80px' }}>
         <p>© 2026 CareerWomen. All rights reserved.</p>
@@ -601,8 +585,7 @@ const PAGES = [
   { id: "home", label: "Home", component: Home },
   { id: "cv", label: "CV Analysis", component: CVRewriter },
   { id: "roadmap", label: "Mentor", component: RoadmapGenerator },
-  { id: "interview", label: "ChatBot", component: InterviewCoach },
-  { id: "account", label: "My Account", component: () => <div className="container"><h2>My Account</h2><p>Account settings and profile coming soon.</p></div> },
+  { id: "interview", label: "ChatBot", component: InterviewCoach }
 ];
 
 export default function App() {
