@@ -1,113 +1,126 @@
-# Career Women API 🚀
+# 🌸 CareerWomen: AI-Powered Career Re-entry Platform
 
-AI-powered FastAPI backend helping women return to work after career breaks using Google Gemini.
+**Empowering women to return to the workforce after career breaks with the power of Google Gemini AI.**
 
-## Features
-| # | Endpoint | What it does |
-|---|----------|-------------|
-| 1 | `POST /skills/analyze` | CV skills gap analysis vs target role |
-| 2 | `POST /interview/start` + `/answer` | Mock interview with AI scoring |
-| 3 | `POST /cv/rewrite` | Bias-free, ATS-optimized CV rewrite |
-| 4 | `POST /jobs/match` | Flexible job matching |
-| 5 | `POST /roadmap/generate` | Personalized week-by-week re-entry plan |
+CareerWomen is a full-stack platform designed specifically for women navigating career gaps (due to caregiving, personal health, or breaks). It provides a suite of five AI-powered tools to rebuild confidence, optimize skills, and streamline the journey back to professional life.
 
 ---
 
-## Setup
+## 🚀 Vision
+Many talented women face hurdles when re-entering the workforce. CareerWomen uses **Google Gemini AI** to remove bias from CVs, identify emerging skill gaps during breaks, and provide a supportive environment for interview practice.
 
+---
+
+## ✨ Features (AI-Powered)
+
+| Feature | Description | Gemini AI Role |
+| :--- | :--- | :--- |
+| **CV Bias-Proofing** | ATS-optimized CV rewrite that reframes career gaps as growth periods. | Reframes caregiving & hiatuses into professional "transferable skills". |
+| **Mock Interview Coach** | A realistic, role-specific chatbot for interview practice. | Generates role-specific questions and scores answers on confidence, clarity, and relevance. |
+| **Skills Gap Analyzer** | compares your CV against a target role to find missing certifications. | Analyzes industry trends to spot what's changed in your field during your break. |
+| **Mentorship Roadmap** | personalized week-by-week re-entry plan. | Crafts a custom learning path and suggests real returnship programs (e.g., Google's Reach). |
+| **Flexible Job Match** | Matches users to roles that respect career-break needs (remote/flexible). | Scores job listings based on specific flexibility requirements. |
+
+---
+
+## 🛠️ Tech Stack
+
+- **Frontend**: [React 18](https://reactjs.org/) + [Vite](https://vitejs.dev/)
+- **Backend**: [FastAPI](https://fastapi.tiangolo.com/) (Python 3.12)
+- **Database**: [SQLite](https://sqlite.org/) (via SQLAlchemy)
+- **AI Engine**: [Google Gemini Pro / Flash](https://ai.google.dev/)
+- **Infrastructure**: [Docker](https://www.docker.com/) & Docker Compose
+- **File Processing**: `pypdf` & `python-docx` for CV parsing
+
+---
+
+## ⚙️ Project Structure
+
+```text
+/
+├── App.jsx            # Single-page React frontend with custom design system
+├── main.py            # FastAPI entry point & API routes
+├── ai_service.py      # Integration with Google Gemini API
+├── database.py        # SQLAlchemy models & database session
+├── schemas.py         # Pydantic request/response models
+├── compose.yaml       # Docker Compose setup
+├── Dockerfile         # Backend container definition
+├── requirements.txt   # Python dependencies
+└── returnship.db      # SQLite database (auto-generated)
+```
+
+---
+
+## 🏃 Local Setup
+
+### 1. Prerequisites
+- Python 3.12+
+- Node.js (for frontend)
+- A [Google Gemini API Key](https://aistudio.google.com/)
+
+### 2. Backend Setup
 ```bash
-# 1. Install dependencies
+# Install dependencies
 pip install -r requirements.txt
 
-# 2. Set your Gemini API key
-export GEMINI_API_KEY=AIza...
+# Set your API Key (Environment Variable)
+export GEMINI_API_KEY="your_api_key_here"
 
-# 3. Run the server
+# Run the server
 uvicorn main:app --reload
 ```
+*API will be available at `http://localhost:8000`. Docs at `/docs`.*
 
-Open **http://localhost:8000/docs** for the interactive Swagger UI.
+### 3. Frontend Setup
+```bash
+# Install dependencies
+npm install
+
+# Start the Vite development server
+npm run dev
+```
+*Frontend will be available at `http://localhost:5173` (or check console).*
 
 ---
 
-## Quick Start
+## 🐳 Running with Docker
 
-### Register a user
-```bash
-curl -X POST http://localhost:8000/users \
-  -H "Content-Type: application/json" \
-  -d '{"name": "Sarah", "email": "sarah@example.com", "field": "Marketing", "gap_months": 18}'
-```
+You can run the entire stack (exclusive of the external Gemini API) using Docker.
 
-### 1. Analyze skills gap
-```bash
-curl -X POST http://localhost:8000/skills/analyze \
-  -H "Content-Type: application/json" \
-  -d '{
-    "user_id": 1,
-    "cv_text": "10 years marketing experience, last role Senior Brand Manager 2021...",
-    "target_role": "Head of Digital Marketing"
-  }'
-```
-
-### 2. Start a mock interview
-```bash
-curl -X POST http://localhost:8000/interview/start \
-  -H "Content-Type: application/json" \
-  -d '{"user_id": 1, "job_role": "Product Manager"}'
-# Returns a session_id and question
-
-curl -X POST http://localhost:8000/interview/answer \
-  -H "Content-Type: application/json" \
-  -d '{"session_id": 1, "answer": "In my previous role I led a team of 5..."}'
-```
-
-### 3. Rewrite CV
-```bash
-curl -X POST http://localhost:8000/cv/rewrite \
-  -H "Content-Type: application/json" \
-  -d '{"user_id": 1, "original_cv": "...your CV text..."}'
-```
-
-### 4. Match flexible jobs
-```bash
-curl -X POST http://localhost:8000/jobs/match \
-  -H "Content-Type: application/json" \
-  -d '{
-    "user_id": 1,
-    "field": "Marketing",
-    "location": "London",
-    "hours_per_week": 25,
-    "seniority": "mid",
-    "remote": true
-  }'
-```
-
-### 5. Generate returnship roadmap
-```bash
-curl -X POST http://localhost:8000/roadmap/generate \
-  -H "Content-Type: application/json" \
-  -d '{
-    "user_id": 1,
-    "field": "Software Engineering",
-    "gap_months": 24,
-    "target_role": "Senior Frontend Developer"
-  }'
-```
+1.  Create a `.env` file in the root:
+    ```env
+    GEMINI_API_KEY=your_actual_key_here
+    DATABASE_URL=sqlite:////app/data/returnship.db
+    ```
+2.  Run with Compose:
+    ```bash
+    docker compose up --build
+    ```
+*Note: The current `compose.yaml` is configured to serve the backend on port 8000 and the frontend on port 3000.*
 
 ---
 
-## Project Structure
-```
-returnship_api/
-├── main.py          # FastAPI routes
-├── database.py      # SQLite models & session
-├── schemas.py       # Pydantic request/response models
-├── ai_service.py    # All Google Gemini API calls
-├── requirements.txt
-└── returnship.db    # Auto-created on first run
-```
+## 📄 API Documentation
 
-## Database
-SQLite auto-creates `returnship.db` on startup. All AI results are stored for history/retrieval.
-Each feature has a `GET /{feature}/history/{user_id}` endpoint to fetch past results.
+### Register User
+`POST /users` (json: `{name, email, field, gap_months}`)
+
+### 1. Skills Analyze
+`POST /skills/analyze` (form-data: `file` or `cv_text`, `target_role`)
+
+### 2. Interview Simulation
+- `POST /interview/start` (json: `{job_role}`)
+- `POST /interview/answer` (json: `{session_id, answer}`)
+
+### 3. CV Rewrite (Bias-Proof)
+`POST /cv/rewrite` (form-data: `file` or `original_cv`)
+
+### 5. Roadmap Generation
+`POST /roadmap/generate` (json: `{field, gap_months, target_role}`)
+
+---
+
+## 🤝 Contributing
+Built with ❤️ during the Hanzecode Hackathon. 
+
+© 2026 CareerWomen Project.
