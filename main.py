@@ -6,12 +6,20 @@ Docs at:   http://localhost:8000/docs
 
 import json
 import io
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from datetime import datetime
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, Form
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+import pypdf
+import docx
+
 
 # ── File text extraction ──────────────────────────────────────────────────────
 def extract_text_from_file(filename: str, content: bytes) -> str:
@@ -20,7 +28,6 @@ def extract_text_from_file(filename: str, content: bytes) -> str:
 
     if ext == "pdf":
         try:
-            import pypdf
             reader = pypdf.PdfReader(io.BytesIO(content))
             return "\n".join(page.extract_text() or "" for page in reader.pages).strip()
         except ImportError:
@@ -28,7 +35,6 @@ def extract_text_from_file(filename: str, content: bytes) -> str:
 
     elif ext in ("docx", "doc"):
         try:
-            import docx
             doc = docx.Document(io.BytesIO(content))
             return "\n".join(p.text for p in doc.paragraphs if p.text.strip()).strip()
         except ImportError:
@@ -215,6 +221,21 @@ async def submit_answer(payload: InterviewAnswerRequest, db: Session = Depends(g
         created_at=session.created_at,
     )
 
+@app.get("/interview/sessions", tags=["2. Interview Coach"])
+def list_all_sessions(db: Session = Depends(get_db)):
+    """List all interview sessions across all users."""
+    sessions = db.query(InterviewSession).all()
+    return [
+        {
+            "id": s.id,
+            "user_id": s.user_id,
+            "job_role": s.job_role,
+            "score": s.score,
+            "created_at": s.created_at
+        }
+        for s in sessions
+    ]
+
 
 @app.get("/interview/history/{user_id}", tags=["2. Interview Coach"])
 def interview_history(user_id: int, db: Session = Depends(get_db)):
@@ -316,3 +337,10 @@ def roadmap_history(user_id: int, db: Session = Depends(get_db)):
     """Get all roadmaps generated for a user."""
     records = db.query(Roadmap).filter(Roadmap.user_id == user_id).all()
     return [{"id": r.id, "field": r.field, "gap_months": r.gap_months, "created_at": r.created_at} for r in records]
+
+def __main__():
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+
+if __name__ == "__main__":
+    __main__()

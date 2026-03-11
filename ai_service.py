@@ -126,7 +126,7 @@ TARGET ROLE: {target_role}
 CV:
 {cv_text}
 """
-    raw = await _call_gemini(system, user, max_tokens=3000)
+    raw = await _call_gemini(system, user, max_tokens=10000)
     return _parse_json(raw)
 
 
@@ -157,7 +157,7 @@ JOB ROLE: {job_role}
 QUESTION: {question}
 ANSWER: {answer}
 """
-    raw = await _call_gemini(system, user)
+    raw = await _call_gemini(system, user, max_tokens=10000)
     return _parse_json(raw)
 
 
@@ -183,7 +183,7 @@ and optimize for ATS. Return JSON with this exact structure:
 ORIGINAL CV:
 {original_cv}
 """
-    raw = await _call_gemini(system, user, max_tokens=5000)
+    raw = await _call_gemini(system, user, max_tokens=10000)
     return _parse_json(raw)
 
 
@@ -224,5 +224,5 @@ Return JSON with this exact structure:
   ]
 }}
 """
-    raw = await _call_gemini(system, user, max_tokens=3000)
+    raw = await _call_gemini(system, user, max_tokens=10000)
     return _parse_json(raw)

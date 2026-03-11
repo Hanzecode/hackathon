@@ -4,12 +4,21 @@ from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, F
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
+from dotenv import load_dotenv
+load_dotenv()
+
+import os
 
 # ── Database Configuration ────────────────────────────────────────────────────
 # Setup connection parameters and core SQLAlchemy objects for DB interaction.
 
-DATABASE_URL = "sqlite:///./returnship.db"
+DATABASE_URL = os.getenv("DATABASE_URL","sqlite:///./returnship.db")
 
+if DATABASE_URL.startswith("sqlite:///"):
+    db_path = DATABASE_URL.replace("sqlite:///", "")
+    if db_path and not db_path.startswith(":"):  # skip :memory:
+        db_dir = os.path.dirname(os.path.abspath(db_path))
+        os.makedirs(db_dir, exist_ok=True)
 # Engine manages the connection pool and dialect; SQLite requires single-thread check bypass for FastAPI.
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 
