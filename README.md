@@ -1,4 +1,4 @@
-# Returnship API 🚀
+# Career Women API 🚀
 
 AI-powered FastAPI backend helping women return to work after career breaks using Google Gemini.
 
