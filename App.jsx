@@ -227,7 +227,7 @@ function FileUploadZone({ file, onFile, onClear, accept = ".pdf,.doc,.docx" }) {
 
 
 // ─────────────────────────────────────────────────────────────────────────────
-// FEATURE 2 — Mock Interview Coach (ChatBot)
+// FEATURE 1 — Mock Interview Coach (ChatBot)
 // ─────────────────────────────────────────────────────────────────────────────
 function InterviewCoach() {
   const [jobRole, setJobRole] = useState("");
@@ -344,7 +344,7 @@ function InterviewCoach() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// FEATURE 3 — CV Analysis (Rewriter)
+// FEATURE 2 — CV Analysis (Rewriter)
 // ─────────────────────────────────────────────────────────────────────────────
 function CVRewriter() {
   const [file, setFile] = useState(null);
@@ -451,7 +451,7 @@ function CVRewriter() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// FEATURE 4 — Roadmap Generator (Mentor)
+// FEATURE 3 — Roadmap Generator (Mentor)
 // ─────────────────────────────────────────────────────────────────────────────
 function RoadmapGenerator() {
   const [form, setForm] = useState({ field: "", gap_months: 12, target_role: "" });
